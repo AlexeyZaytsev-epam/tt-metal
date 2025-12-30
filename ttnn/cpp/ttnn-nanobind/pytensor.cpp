@@ -409,11 +409,17 @@ RowMajorHostBuffer convert_to_row_major_host_buffer(const Tensor& tt_tensor, con
                     storage.buffer().shape());
                 return buffers.front();
             },
-            [&tt_tensor](const DeviceStorage& storage) -> HostBuffer {
-                std::cout << "--- prove 001\n";
+            [&tt_tensor](const DeviceStorage& storage) mutable -> HostBuffer {
                 // Implement device storage handling
-                // Move tensor from device to host, then extract HostBuffer
-                auto host_tensor = tt_tensor.cpu();
+
+                // Convert to Row-Major layout on device if necessary
+                // and move tensor from device to host
+                auto host_tensor =
+                    ((Layout::ROW_MAJOR == tt_tensor.layout()) ? tt_tensor
+                                                               : ttnn::to_layout(tt_tensor, Layout::ROW_MAJOR))
+                        .cpu();
+
+                // Extract HostBuffer
                 const auto& host_storage = std::get<HostStorage>(host_tensor.storage());
                 std::vector<HostBuffer> buffers;
                 host_storage.buffer().apply([&buffers](const HostBuffer& shard) { buffers.push_back(shard); });

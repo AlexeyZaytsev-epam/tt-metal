@@ -12,8 +12,6 @@ from ttnn import ShardTensorToMesh
 
 pytestmark = pytest.mark.use_module_device
 
-pytestmark = pytest.mark.use_module_device
-
 
 def test_from_torch_none():
     assert ttnn.from_torch(None) is None

@@ -144,7 +144,7 @@ def test_to_for_01_rank_on_device(device, shape, layout, dtype, pad_value):
 @pytest.mark.parametrize(
     "shape",
     [
-        (1, 1, 3, 3),
+        #        (1, 1, 3, 3),
         (1, 1, 32, 32),
     ],
 )

@@ -408,13 +408,18 @@ RowMajorHostBuffer convert_to_row_major_host_buffer(const Tensor& tt_tensor, con
         return buffers.front();
     };
 
+    // ttnn::to_layout   - why not on device ?
     return convert_to_logical(std::visit(
         tt::stl::overloaded{
             [&extract_buffer_from_host_storage](const HostStorage& storage) -> HostBuffer {
                 return extract_buffer_from_host_storage(storage);
             },
             [&tt_tensor, &extract_buffer_from_host_storage](const DeviceStorage&) -> HostBuffer {
-                auto host_tensor = tt_tensor.cpu();
+                auto host_tensor =
+                    ((Layout::TILE == tt_tensor.layout()) ? ttnn::to_layout(tt_tensor, Layout::ROW_MAJOR) : tt_tensor)
+                        .cpu();
+
+                // auto host_tensor = tt_tensor.cpu();
                 const auto& host_storage = std::get<HostStorage>(host_tensor.storage());
                 return extract_buffer_from_host_storage(host_storage);
             },
